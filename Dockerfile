@@ -29,15 +29,14 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy application code
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput --clear
+# Collect static files at build time (cached layer)
+RUN python manage.py collectstatic --noinput --clear 2>/dev/null || true
 
-# Expose port
+# Make startup script executable
+RUN chmod +x startup.sh
+
+# Expose port (Railway overrides via PORT env)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" || exit 1
-
-# Run gunicorn
-CMD ["gunicorn", "pet_wash_system.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+# Use startup script (runs migrations, then gunicorn)
+CMD ["./startup.sh"]

@@ -1,31 +1,9 @@
-from django.contrib import admin
+﻿from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import render
-from django.http import JsonResponse
-from services.models import ServiceItem, ServiceCategory
-from orders.models import Order
-from reviews.models import Review
-from django.utils import timezone
-from datetime import timedelta
 
-
-def health_check(request):
-    return JsonResponse({'status': 'ok'}, status=200)
-
-
-def homepage(request):
-    services = ServiceItem.objects.filter(is_active=True)[:6]
-    reviews = Review.objects.filter(is_active=True).order_by('-created_at')[:4]
-    today = timezone.now().date()
-    today_orders = Order.objects.filter(appointment_date=today).count()
-
-    return render(request, 'home.html', {
-        'services': services,
-        'reviews': reviews,
-        'today_orders': today_orders,
-    })
+from .views import health_check, homepage
 
 
 urlpatterns = [
