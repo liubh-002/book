@@ -1,0 +1,36 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}登录{% endblock %}
+{% block content %}
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-title">
+            <div style="font-size:3rem;margin-bottom:0.5rem;">🐾</div>
+            <h2>欢迎回来</h2>
+            <p>登录萌宠洗护管理系统</p>
+        </div>
+        <form method="post" class="form-cute">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-person"></i> 用户名</label>
+                <input type="text" name="username" class="form-control" required placeholder="请输入用户名">
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-lock"></i> 密码</label>
+                <input type="password" name="password" class="form-control" required placeholder="请输入密码">
+            </div>
+            <button type="submit" class="btn btn-cute btn-cute-primary w-100 mt-2">
+                <i class="bi bi-box-arrow-in-right"></i> 登录
+            </button>
+            <div class="text-center mt-3">
+                <a href="{% url 'accounts:register' %}" class="text-cute-primary">还没有账号？立即注册</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+    body { background: transparent !important; }
+</style>
+{% endblock %}

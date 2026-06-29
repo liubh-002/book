@@ -1,0 +1,50 @@
+﻿{% extends 'base.html' %}
+{% block title %}洗护服务{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold"><i class="bi bi-grid text-cute-primary"></i> 洗护服务套餐</h2>
+        <p class="text-muted">为您的毛孩子选择最合适的洗护方案</p>
+    </div>
+
+    {% for category in categories %}
+    <div class="mb-5">
+        <h4 class="fw-bold mb-4"><span style="font-size:1.5rem;">{{ category.icon|default:'🛁' }}</span> {{ category.name }}</h4>
+        <div class="row">
+            {% for service in category.services.all %}
+            {% if service.is_active %}
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">{{ category.icon|default:'🛁' }}</div>
+                    <div class="service-name">{{ service.name }}</div>
+                    <div class="service-price">¥{{ service.price }}</div>
+                    <div class="service-duration">⏱ 约{{ service.duration }}分钟</div>
+                    <div class="service-desc">{{ service.description|truncatechars:60|default:'暂无描述' }}</div>
+                    {% if service.applicable_pets %}
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 {{ service.applicable_pets }}</span></div>
+                    {% endif %}
+                    <a href="{% url 'appointments:book' %}" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">🛁</div>
+                    <h5>暂无服务</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-icon">🛠️</div>
+        <h5>服务分类正在配置中</h5>
+        <p>管理员正在努力添加服务项目~</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

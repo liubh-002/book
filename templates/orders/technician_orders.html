@@ -1,0 +1,81 @@
+﻿{% extends 'base.html' %}
+{% block title %}我的工单{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-tools text-cute-primary"></i> 我的工单</h3>
+
+    <div class="mb-4">
+        <a href="?status=" class="btn btn-cute btn-cute-sm {% if not status_filter %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1">全部</a>
+        <a href="?status=confirmed" class="btn btn-cute btn-cute-sm {% if status_filter == 'confirmed' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1">待服务</a>
+        <a href="?status=in_progress" class="btn btn-cute btn-cute-sm {% if status_filter == 'in_progress' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1">服务中</a>
+        <a href="?status=completed" class="btn btn-cute btn-cute-sm {% if status_filter == 'completed' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1">已完成</a>
+    </div>
+
+    {% for order in orders %}
+    <div class="card-cute mb-3 {% if order.status == 'in_progress' %}border border-primary{% endif %}">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="font-size:2rem;margin-right:1rem;">🛁</div>
+                        <div>
+                            <strong>{{ order.service.name }}</strong>
+                            <span class="badge-cute 
+                                {% if order.status == 'confirmed' %}badge-confirmed
+                                {% elif order.status == 'in_progress' %}badge-progress
+                                {% elif order.status == 'completed' %}badge-completed
+                                {% endif %} ms-2">{{ order.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        📋 {{ order.order_no }} | 
+                        👤 {{ order.user.nickname|default:order.user.username }} | 
+                        🐱 {{ order.pet.name }} | 
+                        📅 {{ order.appointment_date|date:"Y-m-d" }} {{ order.appointment_time|time:"H:i" }}
+                    </div>
+                    {% if order.pet.taboos %}
+                    <div class="mt-2 p-2 bg-danger bg-opacity-10 rounded-cute">
+                        ⚠️ <strong>宠物禁忌：</strong>{{ order.pet.taboos }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'orders:detail' order.id %}" class="btn btn-cute btn-cute-sm btn-cute-secondary"><i class="bi bi-eye"></i> 查看</a>
+                    {% if order.status == 'confirmed' %}
+                    <form method="post" action="{% url 'orders:technician_update' order.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="start">
+                        <button type="submit" class="btn btn-cute btn-cute-sm btn-cute-success"><i class="bi bi-play"></i> 开始服务</button>
+                    </form>
+                    {% endif %}
+                    {% if order.status == 'in_progress' %}
+                    <a href="#" class="btn btn-cute btn-cute-sm btn-cute-warning" onclick="completeService('{{ order.id }}')"><i class="bi bi-check"></i> 完成服务</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h5>暂无工单</h5>
+        <p>等待管理员分配订单~</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function completeService(orderId) {
+    const notes = prompt('请填写服务记录：');
+    if (notes === null) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/technician/${orderId}/update/`;
+    form.innerHTML = `{% csrf_token %}<input name="action" value="complete"><textarea name="service_notes">${notes || ''}</textarea>`;
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

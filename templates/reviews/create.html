@@ -1,0 +1,51 @@
+﻿{% extends 'base.html' %}
+{% block title %}评价订单{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card-cute">
+                <div class="card-header"><i class="bi bi-star"></i> 评价服务</div>
+                <div class="card-body text-center">
+                    <div style="font-size:3rem;">🛁</div>
+                    <h5>{{ order.service.name }}</h5>
+                    <p class="text-muted">{{ order.pet.name }} · {{ order.appointment_date|date:"Y-m-d" }}</p>
+                    <form method="post" enctype="multipart/form-data" class="form-cute text-start">
+                        {% csrf_token %}
+                        <div class="mb-3 text-center">
+                            <label class="form-label fw-bold">评分</label>
+                            <div class="rating-stars" style="font-size:2.5rem;">
+                                {% for i in "54321"|make_list %}
+                                <span class="star" data-value="{{ i }}" onclick="setRating({{ i }})" style="cursor:pointer;">⭐</span>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="rating" id="rating" value="5">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">评价内容</label>
+                            <textarea name="content" class="form-control" rows="3" placeholder="分享您的洗护体验..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📸 上传图片</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-cute btn-cute-primary w-100"><i class="bi bi-check-lg"></i> 提交评价</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function setRating(val) {
+    document.getElementById('rating').value = val;
+    document.querySelectorAll('.star').forEach((s, i) => {
+        s.style.opacity = (5 - i) <= val ? '1' : '0.3';
+    });
+}
+// Initialize
+setRating(5);
+</script>
+{% endblock %}

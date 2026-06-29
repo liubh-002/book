@@ -1,0 +1,189 @@
+﻿{% extends 'base.html' %}
+{% block title %}订单管理{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4 px-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-list-check text-cute-primary"></i> 订单管理</h3>
+    
+    <!-- Search & Filter -->
+    <div class="card-cute mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="🔍 搜索订单号/用户/宠物">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">全部状态</option>
+                        <option value="pending_confirm" {% if status_filter == 'pending_confirm' %}selected{% endif %}>待确认</option>
+                        <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>已确认</option>
+                        <option value="delayed" {% if status_filter == 'delayed' %}selected{% endif %}>延后</option>
+                        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>洗护中</option>
+                        <option value="pending_acceptance" {% if status_filter == 'pending_acceptance' %}selected{% endif %}>待验收</option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>已完成</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>已取消</option>
+                        <option value="locked" {% if status_filter == 'locked' %}selected{% endif %}>已锁定</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-cute btn-cute-primary w-100"><i class="bi bi-search"></i> 搜索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card-cute">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>订单号</th>
+                            <th>客户</th>
+                            <th>宠物</th>
+                            <th>服务</th>
+                            <th>预约时间</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>技师</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="{% if order.is_locked %}table-secondary{% endif %}">
+                            <td><small>{{ order.order_no }}</small></td>
+                            <td>{{ order.user.nickname|default:order.user.username }}</td>
+                            <td>{{ order.pet.name|default:'-' }}</td>
+                            <td>{{ order.service.name|default:'-' }}</td>
+                            <td><small>{{ order.appointment_date|date:"m-d" }} {{ order.appointment_time|time:"H:i" }}</small></td>
+                            <td>¥{{ order.amount }}</td>
+                            <td>
+                                <span class="badge-cute 
+                                    {% if order.status == 'pending_confirm' %}badge-pending
+                                    {% elif order.status == 'confirmed' %}badge-confirmed
+                                    {% elif order.status == 'in_progress' %}badge-progress
+                                    {% elif order.status == 'completed' %}badge-completed
+                                    {% elif order.status == 'cancelled' %}badge-cancelled
+                                    {% elif order.status == 'delayed' %}badge-delayed
+                                    {% elif order.status == 'locked' %}badge-locked
+                                    {% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ order.technician.nickname|default:order.technician.username|default:'-' }}</td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-cute btn-cute-sm btn-cute-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        操作
+                                    </button>
+                                    <ul class="dropdown-menu" style="min-width:200px;">
+                                        <li><a class="dropdown-item" href="{% url 'orders:detail' order.id %}"><i class="bi bi-eye"></i> 查看详情</a></li>
+                                        {% if order.status == 'pending_confirm' %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-success" href="#" onclick="confirmAction('{{ order.id }}', 'confirm')"><i class="bi bi-check"></i> 确认接单</a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="rejectOrder('{{ order.id }}')"><i class="bi bi-x"></i> 驳回</a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" onclick="rescheduleOrder('{{ order.id }}')"><i class="bi bi-calendar"></i> 改期</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="delayOrder('{{ order.id }}')"><i class="bi bi-clock"></i> 延后</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="assignTech('{{ order.id }}')"><i class="bi bi-person"></i> 指派技师</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-warning" href="{% url 'orders:admin_toggle_lock' order.id %}">
+                                            {% if order.is_locked %}<i class="bi bi-unlock"></i> 解冻{% else %}<i class="bi bi-lock"></i> 锁定{% endif %}
+                                        </a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="cancelOrder('{{ order.id }}')"><i class="bi bi-trash"></i> 取消订单</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="9" class="text-center py-5 text-muted">暂无订单</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load technicians list for assignment
+const technicians = {{ technicians|default:'[]'|safe }};
+
+function confirmAction(orderId, action) {
+    if (!confirm('确定要执行此操作吗？')) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/confirm/`;
+    form.innerHTML = `{% csrf_token %}<input name="action" value="${action}">`;
+    if (action === 'reject') {
+        const reason = prompt('请输入驳回原因：');
+        if (!reason) return;
+        form.innerHTML += `<input name="reject_reason" value="${reason}">`;
+    }
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function rejectOrder(orderId) {
+    const reason = prompt('请输入驳回原因：');
+    if (!reason) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/confirm/`;
+    form.innerHTML = `{% csrf_token %}<input name="action" value="reject"><input name="reject_reason" value="${reason}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function rescheduleOrder(orderId) {
+    const newDate = prompt('请输入新日期 (YYYY-MM-DD)：');
+    if (!newDate) return;
+    const newTime = prompt('请输入新时间 (HH:MM)：');
+    if (!newTime) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/reschedule/`;
+    form.innerHTML = `{% csrf_token %}<input name="new_date" value="${newDate}"><input name="new_time" value="${newTime}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function delayOrder(orderId) {
+    const minutes = prompt('请输入延后时长（分钟）：', '30');
+    if (!minutes) return;
+    const reason = prompt('请输入延后原因：');
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/delay/`;
+    form.innerHTML = `{% csrf_token %}<input name="delay_minutes" value="${minutes}"><input name="delay_reason" value="${reason || ''}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function assignTech(orderId) {
+    const techId = prompt('请输入技师ID：');
+    if (!techId) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/assign/`;
+    form.innerHTML = `{% csrf_token %}<input name="technician_id" value="${techId}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function cancelOrder(orderId) {
+    if (!confirm('确定要取消该订单吗？')) return;
+    const reason = prompt('请输入取消原因：');
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/orders/admin/${orderId}/cancel-order/`;
+    form.innerHTML = `{% csrf_token %}<input name="cancel_reason" value="${reason || '管理员取消'}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+﻿{% extends 'base.html' %}
+{% block title %}我的宠物{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-heart text-cute-primary"></i> 我的宠物档案</h3>
+        <a href="{% url 'pets:add' %}" class="btn btn-cute btn-cute-primary">
+            <i class="bi bi-plus-lg"></i> 添加宠物
+        </a>
+    </div>
+
+    <div class="row">
+        {% for pet in pets %}
+        <div class="col-md-6 mb-4">
+            <div class="pet-card {% if pet.is_default %}active{% endif %}">
+                <div class="d-flex align-items-start">
+                    <div style="font-size:3.5rem;margin-right:1rem;">
+                        {% if pet.avatar %}<img src="{{ pet.avatar.url }}" class="avatar-cute avatar-cute-lg">{% else %}🐱{% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="pet-name">
+                                    {{ pet.name }}
+                                    {% if pet.is_default %}<span class="badge bg-warning text-dark ms-1">默认</span>{% endif %}
+                                    {% if pet.taboos %}<span class="badge bg-danger ms-1" title="有特殊禁忌">⚠️</span>{% endif %}
+                                </div>
+                                <div class="pet-info">
+                                    {{ pet.get_gender_display|default:'未知性别' }} · 
+                                    {% if pet.age %}{{ pet.age }}个月 · {% endif %}
+                                    {{ pet.get_size_display }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge rounded-pill bg-light text-dark me-1">{{ pet.breed|default:'未知品种' }}</span>
+                            {% if pet.weight %}<span class="badge rounded-pill bg-light text-dark">{{ pet.weight }}kg</span>{% endif %}
+                        </div>
+                        {% if pet.taboos %}
+                        <div class="mt-2 p-2 bg-danger bg-opacity-10 rounded-cute" style="font-size:0.85rem;">
+                            ⚠️ <strong>禁忌：</strong>{{ pet.taboos|truncatechars:30 }}
+                        </div>
+                        {% endif %}
+                        <div class="mt-3">
+                            <a href="{% url 'pets:edit' pet.id %}" class="btn btn-cute btn-cute-sm btn-cute-secondary"><i class="bi bi-pencil"></i> 编辑</a>
+                            <a href="{% url 'pets:set_default' pet.id %}" class="btn btn-cute btn-cute-sm btn-cute-outline"><i class="bi bi-star"></i> 设为默认</a>
+                            <a href="{% url 'pets:delete' pet.id %}" class="btn btn-cute btn-cute-sm btn-cute-danger" onclick="return confirm('确定删除{{ pet.name }}的档案吗？')"><i class="bi bi-trash"></i> 删除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state">
+                <div class="empty-icon">🐱</div>
+                <h5>还没有添加宠物哦~</h5>
+                <p>添加宠物档案，开始预约洗护服务吧！</p>
+                <a href="{% url 'pets:add' %}" class="btn btn-cute btn-cute-primary"><i class="bi bi-plus-lg"></i> 添加第一只宠物</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+﻿{% extends 'base.html' %}
+{% block title %}管理仪表盘{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-speedometer2 text-cute-primary"></i> 管理仪表盘</h3>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#FFF0F3;">📅</div>
+                <div class="stat-number">{{ today_orders }}</div>
+                <div class="stat-label">今日预约</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#E8F8E8;">✅</div>
+                <div class="stat-number">{{ today_completed }}</div>
+                <div class="stat-label">今日完成</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#FFF3CD;">⏳</div>
+                <div class="stat-number">{{ pending_orders }}</div>
+                <div class="stat-label">待处理</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#E8F4FD;">💰</div>
+                <div class="stat-number">¥{{ week_revenue|floatformat:0 }}</div>
+                <div class="stat-label">本周营收</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#F3E8FF;">📈</div>
+                <div class="stat-number">¥{{ month_revenue|floatformat:0 }}</div>
+                <div class="stat-label">本月营收</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon mx-auto" style="background:#FFE8E8;">👤</div>
+                <div class="stat-number">{{ new_users_today }}</div>
+                <div class="stat-label">今日新用户</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card-cute">
+                <div class="card-header"><i class="bi bi-pie-chart"></i> 订单状态分布</div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card-cute">
+                <div class="card-header"><i class="bi bi-bar-chart"></i> 今日时段预约量</div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-cute mb-4">
+        <div class="card-header"><i class="bi bi-people"></i> 技师工作量</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>技师</th>
+                            <th>接单数</th>
+                            <th>完成数</th>
+                            <th>完成率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tech in tech_stats %}
+                        <tr>
+                            <td>👨‍🔧 {{ tech.nickname|default:tech.username }}</td>
+                            <td>{{ tech.order_count }}</td>
+                            <td>{{ tech.completed_count }}</td>
+                            <td>
+                                {% if tech.order_count > 0 %}
+                                <div class="progress" style="height:8px;">
+                                    <div class="progress-bar bg-success" style="width:{% widthratio tech.completed_count tech.order_count 100 %}%"></div>
+                                </div>
+                                <small>{% widthratio tech.completed_count tech.order_count 100 %}%</small>
+                                {% else %}0%{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">暂无技师数据</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-cute">
+        <div class="card-header"><i class="bi bi-clock-history"></i> 最近订单</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>客户</th>
+                            <th>服务</th>
+                            <th>时间</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td><small>{{ order.order_no }}</small></td>
+                            <td>{{ order.user.nickname|default:order.user.username }}</td>
+                            <td>{{ order.service.name|default:'-' }}</td>
+                            <td><small>{{ order.created_at|date:"m-d H:i" }}</small></td>
+                            <td><span class="badge-cute 
+                                {% if order.status == 'pending_confirm' %}badge-pending
+                                {% elif order.status == 'confirmed' %}badge-confirmed
+                                {% elif order.status == 'in_progress' %}badge-progress
+                                {% elif order.status == 'completed' %}badge-completed
+                                {% elif order.status == 'cancelled' %}badge-cancelled
+                                {% endif %}">{{ order.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-4 text-muted">暂无订单</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const hourlyData = [{{ hourly_orders|join:',' }}];
+const hasHourlyData = hourlyData.length > 0;
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['待确认', '已确认', '洗护中', '已完成', '已取消'],
+        datasets: [{
+            data: [{{ status_data.pending_confirm }}, {{ status_data.confirmed }}, {{ status_data.in_progress }}, {{ status_data.completed }}, {{ status_data.cancelled }}],
+            backgroundColor: ['#FFB347', '#6CB4EE', '#7BC67E', '#A78BFA', '#FF6B6B'],
+            borderWidth: 0,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+if (hasHourlyData) {
+    new Chart(document.getElementById('hourlyChart'), {
+        type: 'bar',
+        data: {
+            labels: ['8点','9点','10点','11点','12点','13点','14点','15点','16点','17点','18点','19点'],
+            datasets: [{
+                label: '预约量',
+                data: hourlyData,
+                backgroundColor: '#FF9EB5',
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+} else {
+    document.getElementById('hourlyChart').parentElement.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><h5>暂无数据</h5><p class="text-muted">今日暂无预约数据</p></div>';
+}
+</script>
+{% endblock %}

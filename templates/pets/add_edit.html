@@ -1,0 +1,107 @@
+﻿{% extends 'base.html' %}
+{% block title %}{% if is_add %}添加宠物{% else %}编辑宠物{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-cute">
+                <div class="card-header">
+                    <i class="bi bi-{% if is_add %}plus{% else %}pencil{% endif %}"></i>
+                    {% if is_add %}添加新宠物{% else %}编辑 {{ pet.name }} 的档案{% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" class="form-cute">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">🐱 宠物昵称 *</label>
+                                <input type="text" name="name" class="form-control" value="{{ pet.name|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">🐕 品种</label>
+                                <input type="text" name="breed" class="form-control" value="{{ pet.breed|default:'' }}" placeholder="如：金毛、布偶猫">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">⚤ 性别</label>
+                                <select name="gender" class="form-select">
+                                    <option value="">请选择</option>
+                                    <option value="male" {% if pet.gender == 'male' %}selected{% endif %}>男孩子</option>
+                                    <option value="female" {% if pet.gender == 'female' %}selected{% endif %}>女孩子</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">📏 体型</label>
+                                <select name="size" class="form-select">
+                                    <option value="small" {% if pet.size == 'small' %}selected{% endif %}>小型</option>
+                                    <option value="medium" {% if pet.size == 'medium' %}selected{% endif %}>中型</option>
+                                    <option value="large" {% if pet.size == 'large' %}selected{% endif %}>大型</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">📅 年龄(月)</label>
+                                <input type="number" name="age" class="form-control" value="{{ pet.age|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">⚖️ 体重(kg)</label>
+                                <input type="number" step="0.1" name="weight" class="form-control" value="{{ pet.weight|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">🎨 毛色</label>
+                                <input type="text" name="color" class="form-control" value="{{ pet.color|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">📸 照片</label>
+                                <input type="file" name="avatar" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="fw-bold text-cute-primary"><i class="bi bi-heart-pulse"></i> 健康信息</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">💉 疫苗接种记录</label>
+                                <textarea name="vaccination" class="form-control" rows="2">{{ pet.vaccination|default:'' }}</textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">🪱 驱虫记录</label>
+                                <textarea name="deworming" class="form-control" rows="2">{{ pet.deworming|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⚠️ 过敏史</label>
+                                <textarea name="allergies" class="form-control" rows="2" placeholder="如：皮肤过敏、食物过敏等">{{ pet.allergies|default:'' }}</textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">🏥 既往病史</label>
+                                <textarea name="medical_history" class="form-control" rows="2">{{ pet.medical_history|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">🚫 特殊禁忌 <span class="text-danger">*</span></label>
+                            <textarea name="taboos" class="form-control" rows="2" placeholder="怕水、怕吹风机、攻击性强等（技师将重点关注）">{{ pet.taboos|default:'' }}</textarea>
+                        </div>
+                        <hr>
+                        <h6 class="fw-bold text-cute-primary"><i class="bi bi-chat-dots"></i> 其他信息</h6>
+                        <div class="mb-3">
+                            <label class="form-label">🎭 宠物性格</label>
+                            <textarea name="personality" class="form-control" rows="2">{{ pet.personality|default:'' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📝 洗护注意事项</label>
+                            <textarea name="notes" class="form-control" rows="2">{{ pet.notes|default:'' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-cute btn-cute-primary">
+                            <i class="bi bi-check-lg"></i> {% if is_add %}创建档案{% else %}保存修改{% endif %}
+                        </button>
+                        <a href="{% url 'pets:list' %}" class="btn btn-cute btn-cute-outline">取消</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

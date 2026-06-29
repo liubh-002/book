@@ -1,0 +1,112 @@
+﻿{% extends 'base.html' %}
+{% block title %}订单详情{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card-cute">
+                <div class="card-header">
+                    <i class="bi bi-file-text"></i> 订单详情 - {{ order.order_no }}
+                    <span class="badge-cute ms-2
+                        {% if order.status == 'pending_confirm' %}badge-pending
+                        {% elif order.status == 'confirmed' %}badge-confirmed
+                        {% elif order.status == 'in_progress' %}badge-progress
+                        {% elif order.status == 'completed' %}badge-completed
+                        {% elif order.status == 'cancelled' %}badge-cancelled
+                        {% elif order.status == 'delayed' %}badge-delayed
+                        {% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Order Progress -->
+                    <div class="order-progress">
+                        <div class="step {% if order.status != 'cancelled' %}completed{% endif %}">
+                            <div class="step-icon">📋</div>
+                            <div class="step-label">已预约</div>
+                        </div>
+                        <div class="step {% if order.status == 'confirmed' or order.status == 'in_progress' or order.status == 'pending_acceptance' or order.status == 'completed' %}completed{% endif %} {% if order.status == 'confirmed' %}active{% endif %}">
+                            <div class="step-icon">✅</div>
+                            <div class="step-label">已确认</div>
+                        </div>
+                        <div class="step {% if order.status == 'in_progress' or order.status == 'pending_acceptance' or order.status == 'completed' %}completed{% endif %} {% if order.status == 'in_progress' %}active{% endif %}">
+                            <div class="step-icon">🛁</div>
+                            <div class="step-label">洗护中</div>
+                        </div>
+                        <div class="step {% if order.status == 'completed' %}completed{% endif %} {% if order.status == 'pending_acceptance' %}active{% endif %}">
+                            <div class="step-icon">✨</div>
+                            <div class="step-label">待验收</div>
+                        </div>
+                        <div class="step {% if order.status == 'completed' %}completed active{% endif %}">
+                            <div class="step-icon">🎉</div>
+                            <div class="step-label">已完成</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>🐱 宠物：</strong>{{ order.pet.name|default:'-' }}</p>
+                            <p><strong>🛁 服务：</strong>{{ order.service.name|default:'-' }}</p>
+                            <p><strong>💰 金额：</strong>¥{{ order.amount }}</p>
+                            <p><strong>💳 支付方式：</strong>{{ order.get_payment_method_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>📅 预约时间：</strong>{{ order.appointment_date|date:"Y-m-d" }} {{ order.appointment_time|time:"H:i" }}</p>
+                            <p><strong>👨‍🔧 技师：</strong>{{ order.technician.nickname|default:order.technician.username|default:'待指派' }}</p>
+                            <p><strong>📝 备注：</strong>{{ order.special_notes|default:'无' }}</p>
+                            {% if order.actual_start_time %}
+                            <p><strong>🕐 开始时间：</strong>{{ order.actual_start_time|date:"Y-m-d H:i" }}</p>
+                            {% endif %}
+                            {% if order.actual_end_time %}
+                            <p><strong>🕐 完成时间：</strong>{{ order.actual_end_time|date:"Y-m-d H:i" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if order.service_notes %}
+                    <hr>
+                    <h6>📋 服务记录</h6>
+                    <p>{{ order.service_notes }}</p>
+                    {% endif %}
+                    {% if order.after_photos %}
+                    <hr>
+                    <h6>📸 洗护完成照片</h6>
+                    <img src="{{ order.after_photos.url }}" class="img-fluid rounded-cute" style="max-height:300px;">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-cute">
+                <div class="card-header"><i class="bi bi-clock-history"></i> 操作日志</div>
+                <div class="card-body" style="max-height:400px;overflow-y:auto;">
+                    {% for log in logs %}
+                    <div class="d-flex mb-3">
+                        <div style="font-size:1.2rem;margin-right:10px;">
+                            {% if log.operation_type == 'created' %}📝
+                            {% elif log.operation_type == 'confirmed' %}✅
+                            {% elif log.operation_type == 'rescheduled' %}📅
+                            {% elif log.operation_type == 'delayed' %}⏰
+                            {% elif log.operation_type == 'assigned' %}👨‍🔧
+                            {% elif log.operation_type == 'started' %}🛁
+                            {% elif log.operation_type == 'completed' %}✨
+                            {% elif log.operation_type == 'cancelled' %}❌
+                            {% elif log.operation_type == 'locked' %}🔒
+                            {% elif log.operation_type == 'unlocked' %}🔓
+                            {% else %}📌{% endif %}
+                        </div>
+                        <div>
+                            <small class="fw-bold">{{ log.get_operation_type_display }}</small>
+                            <div class="text-muted" style="font-size:0.8rem;">{{ log.operator.nickname|default:log.operator.username }}</div>
+                            <div style="font-size:0.8rem;">{{ log.content|default:'' }}</div>
+                            <small class="text-muted">{{ log.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted text-center">暂无操作记录</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

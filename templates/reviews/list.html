@@ -1,0 +1,42 @@
+﻿{% extends 'base.html' %}
+{% block title %}评价管理{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-star text-cute-primary"></i> 评价管理</h3>
+    <div class="card-cute">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr><th>订单</th><th>用户</th><th>评分</th><th>内容</th><th>时间</th><th>回复</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for review in reviews %}
+                        <tr>
+                            <td><small>{{ review.order.order_no|truncatechars:15 }}</small></td>
+                            <td>{{ review.user.nickname|default:review.user.username }}</td>
+                            <td>{% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}⭐{% endif %}{% endfor %}</td>
+                            <td>{{ review.content|truncatechars:30 }}</td>
+                            <td><small>{{ review.created_at|date:"Y-m-d" }}</small></td>
+                            <td>
+                                {% if review.reply_content %}
+                                <span class="text-success">已回复</span>
+                                {% elif user.role == 'admin' %}
+                                <form method="post" action="{% url 'reviews:admin_reply' review.id %}" class="d-flex">
+                                    {% csrf_token %}
+                                    <input name="reply_content" class="form-control form-control-sm me-1" style="width:120px;" placeholder="回复...">
+                                    <button class="btn btn-cute btn-cute-sm btn-cute-primary">回复</button>
+                                </form>
+                                {% else %}<span class="text-muted">等待回复</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center py-4 text-muted">暂无评价</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+﻿{% extends 'base.html' %}
+{% block title %}我的订单{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-file-text text-cute-primary"></i> 我的订单</h3>
+
+    <!-- Status Filter -->
+    <div class="mb-4">
+        <a href="?status=all" class="btn btn-cute btn-cute-sm {% if status_filter == 'all' or not status_filter %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">全部</a>
+        <a href="?status=pending_confirm" class="btn btn-cute btn-cute-sm {% if status_filter == 'pending_confirm' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">待确认</a>
+        <a href="?status=confirmed" class="btn btn-cute btn-cute-sm {% if status_filter == 'confirmed' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">已确认</a>
+        <a href="?status=in_progress" class="btn btn-cute btn-cute-sm {% if status_filter == 'in_progress' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">洗护中</a>
+        <a href="?status=pending_acceptance" class="btn btn-cute btn-cute-sm {% if status_filter == 'pending_acceptance' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">待验收</a>
+        <a href="?status=completed" class="btn btn-cute btn-cute-sm {% if status_filter == 'completed' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">已完成</a>
+        <a href="?status=cancelled" class="btn btn-cute btn-cute-sm {% if status_filter == 'cancelled' %}btn-cute-primary{% else %}btn-cute-outline{% endif %} me-1 mb-1">已取消</a>
+    </div>
+
+    {% for order in orders %}
+    <div class="card-cute mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="font-size:2rem;margin-right:1rem;">🛁</div>
+                        <div>
+                            <strong>{{ order.service.name|default:'洗护服务' }}</strong>
+                            <span class="badge-cute 
+                                {% if order.status == 'pending_confirm' %}badge-pending
+                                {% elif order.status == 'confirmed' %}badge-confirmed
+                                {% elif order.status == 'in_progress' %}badge-progress
+                                {% elif order.status == 'completed' %}badge-completed
+                                {% elif order.status == 'cancelled' %}badge-cancelled
+                                {% elif order.status == 'delayed' %}badge-delayed
+                                {% elif order.status == 'locked' %}badge-locked
+                                {% endif %} ms-2">
+                                {{ order.get_status_display }}
+                            </span>
+                            {% if order.is_locked %}<span class="badge bg-secondary ms-1">🔒 已锁定</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        <span class="me-3">📋 {{ order.order_no }}</span>
+                        <span class="me-3">🐱 {{ order.pet.name|default:'萌宠' }}</span>
+                        <span class="me-3">📅 {{ order.appointment_date|date:"Y-m-d" }} {{ order.appointment_time|time:"H:i" }}</span>
+                        <span>💰 ¥{{ order.amount }}</span>
+                    </div>
+                    {% if order.delay_reason %}
+                    <div class="mt-1 small text-warning">⏰ 已延后：{{ order.delay_reason }}</div>
+                    {% endif %}
+                    {% if order.reject_reason %}
+                    <div class="mt-1 small text-danger">❌ 驳回原因：{{ order.reject_reason }}</div>
+                    {% endif %}
+                    {% if order.cancel_reason %}
+                    <div class="mt-1 small text-danger">❌ 取消原因：{{ order.cancel_reason }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'orders:detail' order.id %}" class="btn btn-cute btn-cute-sm btn-cute-secondary"><i class="bi bi-eye"></i> 详情</a>
+                    {% if order.status == 'pending_confirm' %}
+                    <a href="{% url 'orders:cancel' order.id %}" class="btn btn-cute btn-cute-sm btn-cute-danger" onclick="return confirm('确定取消该订单吗？')"><i class="bi bi-x"></i> 取消</a>
+                    {% endif %}
+                    {% if order.status == 'pending_acceptance' %}
+                    <a href="{% url 'orders:accept' order.id %}" class="btn btn-cute btn-cute-sm btn-cute-success"><i class="bi bi-check"></i> 确认验收</a>
+                    {% endif %}
+                    {% if order.status == 'completed' and not order.review %}
+                    <a href="{% url 'reviews:create' order.id %}" class="btn btn-cute btn-cute-sm btn-cute-warning"><i class="bi bi-star"></i> 评价</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h5>暂无订单</h5>
+        <p>去预约一个洗护服务吧~</p>
+        <a href="{% url 'appointments:book' %}" class="btn btn-cute btn-cute-primary"><i class="bi bi-calendar-plus"></i> 立即预约</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

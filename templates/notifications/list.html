@@ -1,0 +1,55 @@
+﻿{% extends 'base.html' %}
+{% block title %}通知消息{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-bell text-cute-primary"></i> 消息通知</h3>
+        <button class="btn btn-cute btn-cute-sm btn-cute-outline" onclick="markAllRead()">
+            <i class="bi bi-check-all"></i> 全部已读
+        </button>
+    </div>
+
+    <div class="card-cute">
+        <div class="card-body p-0">
+            {% for noti in notifications %}
+            <div class="notification-item {% if not noti.is_read %}unread{% endif %}" onclick="markRead({{ noti.id }})">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>{{ noti.title }}</strong>
+                        <p class="mb-1 small text-muted">{{ noti.content }}</p>
+                    </div>
+                    <div class="text-end" style="min-width:80px;">
+                        <div class="noti-time">{{ noti.created_at|date:"m-d H:i" }}</div>
+                        {% if not noti.is_read %}<span class="badge bg-danger" style="font-size:0.6rem;">New</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">🔔</div>
+                <h5>暂无消息</h5>
+                <p class="text-muted">有新消息时会在这里显示~</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function markRead(id) {
+    fetch(`/notifications/${id}/read/`);
+    const el = event.currentTarget;
+    el.classList.remove('unread');
+    el.querySelector('.badge')?.remove();
+}
+
+function markAllRead() {
+    fetch('/notifications/read-all/');
+    document.querySelectorAll('.notification-item.unread').forEach(el => {
+        el.classList.remove('unread');
+        el.querySelector('.badge')?.remove();
+    });
+}
+</script>
+{% endblock %}

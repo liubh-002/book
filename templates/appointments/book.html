@@ -1,0 +1,158 @@
+﻿{% extends 'base.html' %}
+{% block title %}预约洗护{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-cute">
+                <div class="card-header">
+                    <i class="bi bi-calendar-plus"></i> 预约洗护服务
+                </div>
+                <div class="card-body">
+                    <form method="post" class="form-cute" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        <!-- Step 1: Select Pet -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">🐱 选择宠物</h5>
+                            <div class="row mt-3">
+                                {% for pet in pets %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="pet-card {% if forloop.first %}active{% endif %}" onclick="selectPet(this, {{ pet.id }})">
+                                        <div style="font-size:2rem;text-align:center;">{% if pet.avatar %}<img src="{{ pet.avatar.url }}" class="avatar-cute avatar-cute-sm">{% else %}🐱{% endif %}</div>
+                                        <div class="pet-name text-center">{{ pet.name }}</div>
+                                        <div class="pet-info text-center">{{ pet.breed|default:'萌宠' }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="pet_id" id="pet_id" value="{{ pets.first.id }}">
+                        </div>
+
+                        <!-- Step 2: Select Service -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">🛁 选择服务</h5>
+                            <select name="service_id" id="serviceSelect" class="form-select mt-2" onchange="loadSlots()">
+                                {% for service in services %}
+                                <option value="{{ service.id }}" data-duration="{{ service.duration }}">
+                                    {{ service.name }} - ¥{{ service.price }} ({{ service.duration }}分钟)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Step 3: Select Date & Time -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">📅 选择日期</h5>
+                            <div class="row mt-2" id="datePicker">
+                                {% for d in available_dates %}
+                                <div class="col-2 col-md-2 mb-2">
+                                    <div class="time-slot date-slot {% if forloop.first %}selected{% endif %}" 
+                                         onclick="selectDate(this, '{{ d|date:"Y-m-d" }}')"
+                                         data-date="{{ d|date:"Y-m-d" }}">
+                                        <div style="font-size:0.7rem;">{{ d|date:"m/d" }}</div>
+                                        <div style="font-weight:700;">{{ d|date:"D" }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="appointment_date" id="appointment_date" value="{{ today|date:"Y-m-d" }}">
+                        </div>
+
+                        <!-- Step 4: Time Slots -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">🕐 选择时段</h5>
+                            <div id="timeSlots" class="mt-2 text-center">
+                                <p class="text-muted">请先选择日期和服务</p>
+                            </div>
+                            <input type="hidden" name="appointment_time" id="appointment_time">
+                        </div>
+
+                        <!-- Step 5: Payment & Notes -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">💳 支付方式</h5>
+                            <div class="mt-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="payment_method" value="store" id="payStore" checked>
+                                    <label class="form-check-label" for="payStore">🏪 到店付款</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="payment_method" value="online" id="payOnline" disabled>
+                                    <label class="form-check-label" for="payOnline" class="text-muted">💳 线上支付（即将开放）</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-cute-primary">📝 特殊备注</h5>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="如有特殊需求请在此备注..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-cute btn-cute-primary btn-cute-lg w-100">
+                            <i class="bi bi-check-circle"></i> 提交预约
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedDate = '{{ today|date:"Y-m-d" }}';
+let selectedTime = '';
+let selectedPetId = '{{ pets.first.id }}';
+
+function selectPet(el, petId) {
+    document.querySelectorAll('.pet-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    selectedPetId = petId;
+    document.getElementById('pet_id').value = petId;
+}
+
+function selectDate(el, date) {
+    document.querySelectorAll('.date-slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedDate = date;
+    document.getElementById('appointment_date').value = date;
+    loadSlots();
+}
+
+function loadSlots() {
+    const serviceId = document.getElementById('serviceSelect').value;
+    if (!selectedDate || !serviceId) return;
+    
+    document.getElementById('timeSlots').innerHTML = '<p class="text-muted">⏳ 加载中...</p>';
+    
+    fetch(`/appointments/api/slots/?date=${selectedDate}&service_id=${serviceId}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = '';
+            if (data.slots && data.slots.length > 0) {
+                data.slots.forEach(slot => {
+                    if (slot.available) {
+                        html += `<div class="time-slot" onclick="selectTime(this, '${slot.time}')">${slot.time}</div>`;
+                    } else {
+                        html += `<div class="time-slot disabled">${slot.time} ❌</div>`;
+                    }
+                });
+            } else {
+                html = '<p class="text-muted">该日期暂无可用时段 😿</p>';
+            }
+            document.getElementById('timeSlots').innerHTML = html;
+        });
+}
+
+function selectTime(el, time) {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTime = time;
+    document.getElementById('appointment_time').value = time;
+}
+
+// Load slots on page load
+document.addEventListener('DOMContentLoaded', loadSlots);
+</script>
+{% endblock %}
