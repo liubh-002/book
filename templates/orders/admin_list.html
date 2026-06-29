@@ -53,7 +53,7 @@
                         {% for order in orders %}
                         <tr class="{% if order.is_locked %}table-secondary{% endif %}">
                             <td><small>{{ order.order_no }}</small></td>
-                            <td>{{ order.user.nickname|default:order.user.username }}</td>
+                            <td>{% if order.user %}{{ order.user.nickname|default:order.user.username }}{% else %}-{% endif %}</td>
                             <td>{{ order.pet.name|default:'-' }}</td>
                             <td>{{ order.service.name|default:'-' }}</td>
                             <td><small>{{ order.appointment_date|date:"m-d" }} {{ order.appointment_time|time:"H:i" }}</small></td>
@@ -71,7 +71,7 @@
                                     {{ order.get_status_display }}
                                 </span>
                             </td>
-                            <td>{{ order.technician.nickname|default:order.technician.username|default:'-' }}</td>
+                            <td>{% if order.technician %}{{ order.technician.nickname|default:order.technician.username }}{% else %}-{% endif %}</td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-cute btn-cute-sm btn-cute-primary dropdown-toggle" data-bs-toggle="dropdown">

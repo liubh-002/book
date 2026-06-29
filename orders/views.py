@@ -60,7 +60,7 @@ def admin_order_list(request):
         return redirect('/')
     status_filter = request.GET.get('status', '')
     search = request.GET.get('search', '')
-    orders = Order.objects.all()
+    orders = Order.objects.select_related('user', 'pet', 'service', 'technician').all()
     if status_filter:
         orders = orders.filter(status=status_filter)
     if search:

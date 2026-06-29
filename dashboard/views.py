@@ -1,7 +1,7 @@
 ﻿from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Count, Sum, Avg
+from django.db.models import Count, Sum, Avg, Q
 from datetime import timedelta
 from orders.models import Order
 from accounts.models import User
@@ -39,7 +39,7 @@ def dashboard_index(request):
     # Technician stats
     tech_stats = User.objects.filter(role='technician', is_active=True).annotate(
         order_count=Count('assigned_orders'),
-        completed_count=Count('assigned_orders', filter=Order.objects.filter(status='completed').query),
+        completed_count=Count('assigned_orders', filter=Q(assigned_orders__status='completed')),
     )
     
     # Recent orders
