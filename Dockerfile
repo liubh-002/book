@@ -1,42 +1,32 @@
-# ---- Build Stage ----
-FROM python:3.12-slim AS builder
+# Use official Python 3.12 slim image
+FROM python:3.12-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+# Set work directory
 WORKDIR /app
 
-# Install build dependencies
+# Install system dependencies for psycopg2
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# ---- Runtime Stage ----
-FROM python:3.12-slim
-
-WORKDIR /app
-
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy Python packages from builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-# Copy application code
+# Copy project
 COPY . .
 
-# Collect static files at build time (cached layer)
-RUN python manage.py collectstatic --noinput --clear 2>/dev/null || true
+# Collect static files
+RUN python manage.py collectstatic --noinput
 
-# Make startup script executable
-RUN chmod +x startup.sh
+# Expose port
+EXPOSE $PORT
 
-# Expose port (Railway overrides via PORT env)
-EXPOSE 8000
-
-# Use startup script (runs migrations, then gunicorn)
-CMD ["./startup.sh"]
+# Start: run migrations then gunicorn
+CMD ["/bin/sh", "-c", "python manage.py migrate --noinput && gunicorn pet_wash_system.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile - --error-logfile -"]
