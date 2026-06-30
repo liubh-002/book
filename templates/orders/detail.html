@@ -52,7 +52,7 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>📅 预约时间：</strong>{{ order.appointment_date|date:"Y-m-d" }} {{ order.appointment_time|time:"H:i" }}</p>
-                            <p><strong>👨‍🔧 技师：</strong>{{ order.technician.nickname|default:order.technician.username|default:'待指派' }}</p>
+                            <p><strong>👨‍🔧 技师：</strong>{% if order.technician %}{{ order.technician.nickname|default:order.technician.username }}{% else %}待指派{% endif %}</p>
                             <p><strong>📝 备注：</strong>{{ order.special_notes|default:'无' }}</p>
                             {% if order.actual_start_time %}
                             <p><strong>🕐 开始时间：</strong>{{ order.actual_start_time|date:"Y-m-d H:i" }}</p>
@@ -96,7 +96,7 @@
                         </div>
                         <div>
                             <small class="fw-bold">{{ log.get_operation_type_display }}</small>
-                            <div class="text-muted" style="font-size:0.8rem;">{{ log.operator.nickname|default:log.operator.username }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">{% if log.operator %}{{ log.operator.nickname|default:log.operator.username }}{% else %}-{% endif %}</div>
                             <div style="font-size:0.8rem;">{{ log.content|default:'' }}</div>
                             <small class="text-muted">{{ log.created_at|date:"Y-m-d H:i" }}</small>
                         </div>

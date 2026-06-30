@@ -2,7 +2,8 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Q, Count
+from django.db.models import Q
+import json
 from .models import Order, OrderLog
 from notifications.models import Notification
 from accounts.models import User
@@ -22,8 +23,8 @@ def my_orders(request):
 
 @login_required
 def order_detail(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    logs = OrderLog.objects.filter(order=order)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
+    logs = OrderLog.objects.filter(order=order).select_related('operator')
     return render(request, 'orders/detail.html', {'order': order, 'logs': logs})
 
 @login_required
@@ -66,14 +67,16 @@ def admin_order_list(request):
     if search:
         orders = orders.filter(Q(order_no__icontains=search) | Q(user__nickname__icontains=search) | Q(user__username__icontains=search) | Q(pet__name__icontains=search))
     technicians = User.objects.filter(role='technician', is_active=True)
+    tech_data = [{'id': t.id, 'name': t.nickname or t.username} for t in technicians]
     return render(request, 'orders/admin_list.html', {
-        'orders': orders, 'status_filter': status_filter, 'search': search, 'technicians': technicians,
+        'orders': orders, 'status_filter': status_filter, 'search': search,
+        'technicians': technicians, 'tech_json': json.dumps(tech_data, ensure_ascii=False),
     })
 
 @login_required
 def admin_confirm_order(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'confirm':
@@ -92,7 +95,7 @@ def admin_confirm_order(request, order_id):
 @login_required
 def admin_reschedule(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if request.method == 'POST':
         new_date = request.POST.get('new_date'); new_time = request.POST.get('new_time')
         if new_date and new_time:
@@ -110,7 +113,7 @@ def admin_reschedule(request, order_id):
 @login_required
 def admin_delay(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if request.method == 'POST':
         delay_minutes = int(request.POST.get('delay_minutes', 30))
         reason = request.POST.get('delay_reason', '')
@@ -129,7 +132,7 @@ def admin_delay(request, order_id):
 @login_required
 def admin_assign_technician(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if request.method == 'POST':
         tech_id = request.POST.get('technician_id')
         if tech_id:
@@ -143,7 +146,7 @@ def admin_assign_technician(request, order_id):
 @login_required
 def admin_cancel_order(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if request.method == 'POST':
         reason = request.POST.get('cancel_reason', '管理员取消')
         order.status = 'cancelled'; order.cancel_reason = reason; order.save()
@@ -155,7 +158,7 @@ def admin_cancel_order(request, order_id):
 @login_required
 def admin_toggle_lock(request, order_id):
     if request.user.role != 'admin': return redirect('/')
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order.objects.select_related('user', 'pet', 'service', 'technician'), id=order_id)
     if order.is_locked:
         order.is_locked = False; order.locked_by = None; order.status = 'confirmed'
         OrderLog.objects.create(order=order, operator=request.user, operation_type='unlocked', content='解冻订单')

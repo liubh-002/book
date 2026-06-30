@@ -1,31 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}订单管理{% endblock %}
+{% block title %}????{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4 px-4">
-    <h3 class="fw-bold mb-4"><i class="bi bi-list-check text-cute-primary"></i> 订单管理</h3>
+    <h3 class="fw-bold mb-4"><i class="bi bi-list-check text-cute-primary"></i> ????</h3>
     
     <div class="card-cute mb-4">
         <div class="card-body">
             <form method="get" class="row g-2">
                 <div class="col-md-4">
-                    <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="🔍 搜索订单号/用户/宠物">
+                    <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="?? ?????/??/??">
                 </div>
                 <div class="col-md-3">
                     <select name="status" class="form-select" onchange="this.form.submit()">
-                        <option value="">全部状态</option>
-                        <option value="pending_confirm" {% if status_filter == "pending_confirm" %}selected{% endif %}>待确认</option>
-                        <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>已确认</option>
-                        <option value="delayed" {% if status_filter == "delayed" %}selected{% endif %}>延后</option>
-                        <option value="in_progress" {% if status_filter == "in_progress" %}selected{% endif %}>洗护中</option>
-                        <option value="pending_acceptance" {% if status_filter == "pending_acceptance" %}selected{% endif %}>待验收</option>
-                        <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>已完成</option>
-                        <option value="cancelled" {% if status_filter == "cancelled" %}selected{% endif %}>已取消</option>
-                        <option value="locked" {% if status_filter == "locked" %}selected{% endif %}>已锁定</option>
+                        <option value="">????</option>
+                        <option value="pending_confirm" {% if status_filter == "pending_confirm" %}selected{% endif %}>???</option>
+                        <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>???</option>
+                        <option value="delayed" {% if status_filter == "delayed" %}selected{% endif %}>??</option>
+                        <option value="in_progress" {% if status_filter == "in_progress" %}selected{% endif %}>???</option>
+                        <option value="pending_acceptance" {% if status_filter == "pending_acceptance" %}selected{% endif %}>???</option>
+                        <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>???</option>
+                        <option value="cancelled" {% if status_filter == "cancelled" %}selected{% endif %}>???</option>
+                        <option value="locked" {% if status_filter == "locked" %}selected{% endif %}>???</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-cute btn-cute-primary w-100"><i class="bi bi-search"></i> 搜索</button>
+                    <button type="submit" class="btn btn-cute btn-cute-primary w-100"><i class="bi bi-search"></i> ??</button>
                 </div>
             </form>
         </div>
@@ -37,8 +37,8 @@
                 <table class="table table-hover mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th>订单号</th><th>客户</th><th>宠物</th><th>服务</th>
-                            <th>预约时间</th><th>金额</th><th>状态</th><th>技师</th><th>操作</th>
+                            <th>???</th><th>??</th><th>??</th><th>??</th>
+                            <th>????</th><th>??</th><th>??</th><th>??</th><th>??</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,7 +49,7 @@
                             <td>{{ order.pet.name|default:"-" }}</td>
                             <td>{{ order.service.name|default:"-" }}</td>
                             <td><small>{{ order.appointment_date|date:"m-d" }} {{ order.appointment_time|time:"H:i" }}</small></td>
-                            <td>¥{{ order.amount }}</td>
+                            <td>?{{ order.amount }}</td>
                             <td>
                                 <span class="badge-cute {% if order.status == "pending_confirm" %}badge-pending{% elif order.status == "confirmed" %}badge-confirmed{% elif order.status == "in_progress" %}badge-progress{% elif order.status == "completed" %}badge-completed{% elif order.status == "cancelled" %}badge-cancelled{% elif order.status == "delayed" %}badge-delayed{% elif order.status == "locked" %}badge-locked{% endif %}">
                                     {{ order.get_status_display }}
@@ -58,29 +58,29 @@
                             <td>{% if order.technician %}{{ order.technician.nickname|default:order.technician.username }}{% else %}-{% endif %}</td>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-cute btn-cute-sm btn-cute-primary dropdown-toggle" data-bs-toggle="dropdown">操作</button>
+                                    <button class="btn btn-cute btn-cute-sm btn-cute-primary dropdown-toggle" data-bs-toggle="dropdown">??</button>
                                     <ul class="dropdown-menu" style="min-width:200px;">
-                                        <li><a class="dropdown-item" href="{% url "orders:detail" order.id %}"><i class="bi bi-eye"></i> 查看详情</a></li>
+                                        <li><a class="dropdown-item" href="{% url "orders:detail" order.id %}"><i class="bi bi-eye"></i> ????</a></li>
                                         {% if order.status == "pending_confirm" %}
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-success" href="#" onclick="confirmAction('{{ order.id }}', 'confirm')"><i class="bi bi-check"></i> 确认接单</a></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="rejectOrder('{{ order.id }}')"><i class="bi bi-x"></i> 驳回</a></li>
+                                        <li><a class="dropdown-item text-success" href="#" onclick="confirmAction('{{ order.id }}', 'confirm')"><i class="bi bi-check"></i> ????</a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="rejectOrder('{{ order.id }}')"><i class="bi bi-x"></i> ??</a></li>
                                         {% endif %}
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="#" onclick="rescheduleOrder('{{ order.id }}')"><i class="bi bi-calendar"></i> 改期</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="delayOrder('{{ order.id }}')"><i class="bi bi-clock"></i> 延后</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="assignTech('{{ order.id }}')"><i class="bi bi-person"></i> 指派技师</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="rescheduleOrder('{{ order.id }}')"><i class="bi bi-calendar"></i> ??</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="delayOrder('{{ order.id }}')"><i class="bi bi-clock"></i> ??</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="assignTech('{{ order.id }}')"><i class="bi bi-person"></i> ????</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item text-warning" href="{% url "orders:admin_toggle_lock" order.id %}">
-                                            {% if order.is_locked %}<i class="bi bi-unlock"></i> 解冻{% else %}<i class="bi bi-lock"></i> 锁定{% endif %}
+                                            {% if order.is_locked %}<i class="bi bi-unlock"></i> ??{% else %}<i class="bi bi-lock"></i> ??{% endif %}
                                         </a></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="cancelOrder('{{ order.id }}')"><i class="bi bi-trash"></i> 取消订单</a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="cancelOrder2('{{ order.id }}')"><i class="bi bi-trash"></i> ????</a></li>
                                     </ul>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="9" class="text-center py-5 text-muted">暂无订单</td></tr>
+                        <tr><td colspan="9" class="text-center py-5 text-muted">????</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -89,28 +89,28 @@
     </div>
 </div>
 
-<!-- 指派技师 模态框 -->
+<!-- Assign Technician Modal -->
 <div class="modal fade" id="assignTechModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-person"></i> 指派技师</h5>
+                <h5 class="modal-title"><i class="bi bi-person"></i> ????</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="assignTechForm">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <p>请选择要指派的技师：</p>
+                    <p>??????????</p>
                     <select name="technician_id" class="form-select" required>
-                        <option value="">-- 请选择技师 --</option>
+                        <option value="">-- ????? --</option>
                         {% for tech in technicians %}
                         <option value="{{ tech.id }}">{{ tech.nickname|default:tech.username }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-cute btn-cute-primary">确认指派</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">??</button>
+                    <button type="submit" class="btn btn-cute btn-cute-primary">????</button>
                 </div>
             </form>
         </div>
@@ -123,13 +123,13 @@
 const technicians = {{ tech_json|safe }};
 
 function confirmAction(orderId, action) {
-    if (!confirm("确定要执行此操作吗？")) return;
+    if (!confirm("??????????")) return;
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/confirm/";
     form.innerHTML = '<input name="action" value="' + action + '">';
     if (action === "reject") {
-        const reason = prompt("请输入驳回原因：");
+        const reason = prompt("????????");
         if (!reason) return;
         form.innerHTML += '<input name="reject_reason" value="' + reason + '">';
     }
@@ -138,7 +138,7 @@ function confirmAction(orderId, action) {
 }
 
 function rejectOrder(orderId) {
-    const reason = prompt("请输入驳回原因：");
+    const reason = prompt("????????");
     if (!reason) return;
     const form = document.createElement("form");
     form.method = "POST";
@@ -149,9 +149,9 @@ function rejectOrder(orderId) {
 }
 
 function rescheduleOrder(orderId) {
-    const newDate = prompt("请输入新日期 (YYYY-MM-DD)：");
+    const newDate = prompt("?????? (YYYY-MM-DD)?");
     if (!newDate) return;
-    const newTime = prompt("请输入新时间 (HH:MM)：");
+    const newTime = prompt("?????? (HH:MM)?");
     if (!newTime) return;
     const form = document.createElement("form");
     form.method = "POST";
@@ -162,9 +162,9 @@ function rescheduleOrder(orderId) {
 }
 
 function delayOrder(orderId) {
-    const minutes = prompt("请输入延后时长（分钟）：", "30");
+    const minutes = prompt("????????????", "30");
     if (!minutes) return;
-    const reason = prompt("请输入延后原因：");
+    const reason = prompt("????????");
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/delay/";
@@ -182,7 +182,7 @@ function assignTech(orderId) {
 document.getElementById("assignTechForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const techId = this.querySelector('[name="technician_id"]').value;
-    if (!techId) { alert("请选择技师"); return; }
+    if (!techId) { alert("?????"); return; }
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + assignTechOrderId + "/assign/";
@@ -191,13 +191,13 @@ document.getElementById("assignTechForm").addEventListener("submit", function(e)
     form.submit();
 });
 
-function cancelOrder(orderId) {
-    if (!confirm("确定要取消该订单吗？")) return;
-    const reason = prompt("请输入取消原因：");
+function cancelOrder2(orderId) {
+    if (!confirm("??????????")) return;
+    const reason = prompt("????????");
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/cancel-order/";
-    form.innerHTML = '<input name="cancel_reason" value="' + (reason || "管理员取消") + '">';
+    form.innerHTML = '<input name="cancel_reason" value="' + (reason || "?????") + '">';
     document.body.appendChild(form);
     form.submit();
 }
