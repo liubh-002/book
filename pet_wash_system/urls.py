@@ -8,6 +8,7 @@ from .views import health_check, homepage
 
 urlpatterns = [
     path('health/', health_check, name='health_check'),
+    path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('', homepage, name='home'),
     path('accounts/', include('accounts.urls')),

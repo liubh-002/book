@@ -31,3 +31,7 @@ staticfiles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Railway
+entrypoint.sh
+!.env.example
