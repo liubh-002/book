@@ -136,3 +136,58 @@ def change_password(request):
             return redirect('accounts:profile')
     
     return render(request, 'accounts/change_password.html')
+
+
+@login_required
+def technician_list(request):
+    if request.user.role != 'admin':
+        messages.error(request, '无权限访问')
+        return redirect('/')
+    technicians = User.objects.filter(role='technician').order_by('-date_joined')
+    return render(request, 'accounts/technician_list.html', {'technicians': technicians})
+
+@login_required
+def add_technician(request):
+    if request.user.role != 'admin':
+        messages.error(request, '无权限访问')
+        return redirect('/')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+        nickname = request.POST.get('nickname')
+        phone = request.POST.get('phone')
+        
+        if not username or not password:
+            messages.error(request, '用户名和密码为必填项')
+            return render(request, 'accounts/add_technician.html')
+        
+        if password != password2:
+            messages.error(request, '两次密码输入不一致')
+            return render(request, 'accounts/add_technician.html')
+        
+        if len(password) < 6:
+            messages.error(request, '密码长度不能少于6位')
+            return render(request, 'accounts/add_technician.html')
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, '用户名已存在')
+            return render(request, 'accounts/add_technician.html')
+        
+        if phone and User.objects.filter(phone=phone).exists():
+            messages.error(request, '手机号已被其他用户使用')
+            return render(request, 'accounts/add_technician.html')
+        
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            nickname=nickname or username,
+            phone=phone or None,
+            role='technician',
+            is_active=True,
+        )
+        messages.success(request, f'技师 {user.nickname or user.username} 添加成功 ✨')
+        return redirect('accounts:technician_list')
+    
+    return render(request, 'accounts/add_technician.html')

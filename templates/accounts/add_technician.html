@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}添加技师{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card-cute">
+                <div class="card-header">
+                    <i class="bi bi-person-plus"></i> 添加新技师
+                </div>
+                <div class="card-body">
+                    <form method="post" class="form-cute">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-person"></i> 用户名 <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" placeholder="请输入登录用户名" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-lock"></i> 密码 <span class="text-danger">*</span></label>
+                                <input type="password" name="password" class="form-control" placeholder="至少6位" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-lock"></i> 确认密码 <span class="text-danger">*</span></label>
+                                <input type="password" name="password2" class="form-control" placeholder="再次输入密码" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-star"></i> 昵称</label>
+                                <input type="text" name="nickname" class="form-control" placeholder="显示名称">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-phone"></i> 手机号</label>
+                                <input type="text" name="phone" class="form-control" placeholder="选填">
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-cute btn-cute-primary flex-fill">
+                                <i class="bi bi-check-lg"></i> 确认添加
+                            </button>
+                            <a href="{% url 'accounts:technician_list' %}" class="btn btn-cute btn-cute-outline flex-fill">
+                                <i class="bi bi-x-lg"></i> 取消
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
