@@ -1,4 +1,4 @@
-﻿from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
@@ -26,6 +26,9 @@ def book_appointment(request):
         notes = request.POST.get('notes', '')
         payment_method = request.POST.get('payment_method', 'store')
         
+        if not all([pet_id, service_id, appointment_date, appointment_time]):
+            messages.error(request, "请填写完整预约信息（宠物、服务、日期、时段）")
+            return render(request, "appointments/book.html", {"pets": pets, "services": services})
         pet = get_object_or_404(Pet, id=pet_id, user=request.user)
         service = get_object_or_404(ServiceItem, id=service_id, is_active=True)
         
