@@ -120,6 +120,9 @@
 
 {% block extra_js %}
 <script>
+// Get CSRF token from the page
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
 const technicians = {{ tech_json|safe }};
 
 function confirmAction(orderId, action) {
@@ -127,11 +130,11 @@ function confirmAction(orderId, action) {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/confirm/";
-    form.innerHTML = '<input name="action" value="' + action + '">';
+    form.innerHTML = '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="action" value="' + action + '">';
     if (action === "reject") {
         const reason = prompt("请输入驳回原因：");
         if (!reason) return;
-        form.innerHTML += '<input name="reject_reason" value="' + reason + '">';
+        form.innerHTML += '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="reject_reason" value="' + reason + '">';
     }
     document.body.appendChild(form);
     form.submit();
@@ -143,7 +146,7 @@ function rejectOrder(orderId) {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/confirm/";
-    form.innerHTML = '<input name="action" value="reject"><input name="reject_reason" value="' + reason + '">';
+    form.innerHTML = '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="action" value="reject"><input name="reject_reason" value="' + reason + '">';
     document.body.appendChild(form);
     form.submit();
 }
@@ -156,7 +159,7 @@ function rescheduleOrder(orderId) {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/reschedule/";
-    form.innerHTML = '<input name="new_date" value="' + newDate + '"><input name="new_time" value="' + newTime + '">';
+    form.innerHTML = '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="new_date" value="' + newDate + '"><input name="new_time" value="' + newTime + '">';
     document.body.appendChild(form);
     form.submit();
 }
@@ -168,7 +171,7 @@ function delayOrder(orderId) {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + orderId + "/delay/";
-    form.innerHTML = '<input name="delay_minutes" value="' + minutes + '"><input name="delay_reason" value="' + (reason || "") + '">';
+    form.innerHTML = '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="delay_minutes" value="' + minutes + '"><input name="delay_reason" value="' + (reason || "") + '">';
     document.body.appendChild(form);
     form.submit();
 }
@@ -186,7 +189,7 @@ document.getElementById("assignTechForm").addEventListener("submit", function(e)
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/orders/admin/" + assignTechOrderId + "/assign/";
-    form.innerHTML = '<input name="technician_id" value="' + techId + '">';
+    form.innerHTML = '<input name="csrfmiddlewaretoken" value="' + csrfToken + '"><input name="technician_id" value="' + techId + '">';
     document.body.appendChild(form);
     form.submit();
 });
