@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 宠物洗护预约管理系统 - 洗护服务</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/cute-style.css">
+    
+</head>
+<body>
+    <!-- 飘落爪印装饰 -->
+    <div class="paw-print" style="left:5%;animation-duration:15s;">🐾</div>
+    <div class="paw-print" style="left:20%;animation-duration:20s;animation-delay:2s;">🐾</div>
+    <div class="paw-print" style="left:40%;animation-duration:18s;animation-delay:4s;">🐾</div>
+    <div class="paw-print" style="left:60%;animation-duration:22s;animation-delay:1s;">🐾</div>
+    <div class="paw-print" style="left:80%;animation-duration:16s;animation-delay:3s;">🐾</div>
+    <div class="paw-print" style="left:90%;animation-duration:19s;animation-delay:5s;">🐾</div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-cute">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="paw-icon">🐾</span> 萌宠洗护
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    
+                        
+                        <li class="nav-item">
+                            <a class="nav-link " href="/">
+                                <i class="bi bi-house-heart"></i> 首页
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/services/">
+                                <i class="bi bi-grid"></i> 洗护服务
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointments/book/">
+                                <i class="bi bi-calendar-plus"></i> 预约
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/orders/my/">
+                                <i class="bi bi-file-text"></i> 我的订单
+                            </a>
+                        </li>
+                        
+                    
+                </ul>
+                <ul class="navbar-nav">
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            
+                            <i class="bi bi-person-circle" style="font-size:1.5rem;"></i>
+                            
+                            <span>小明</span>
+                            <span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;">
+                                会员
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            
+                            <li><a class="dropdown-item" href="/accounts/profile/"><i class="bi bi-person"></i> 个人中心</a></li>
+                            <li><a class="dropdown-item" href="/pets/"><i class="bi bi-heart"></i> 我的宠物</a></li>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/accounts/logout/"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 消息提示 -->
+    
+
+    <!-- 主要内容 -->
+    <main>
+        
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold"><i class="bi bi-grid text-cute-primary"></i> 洗护服务套餐</h2>
+        <p class="text-muted">为您的毛孩子选择最合适的洗护方案</p>
+    </div>
+
+    
+    <div class="mb-5">
+        <h4 class="fw-bold mb-4"><span style="font-size:1.5rem;">🛁</span> 基础洗护</h4>
+        <div class="row">
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">🛁</div>
+                    <div class="service-name">基础洗澡套餐</div>
+                    <div class="service-price">¥68.00</div>
+                    <div class="service-duration">⏱ 约45分钟</div>
+                    <div class="service-desc">温和清洁，适合常规洗护</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 中小型犬/猫</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">🛁</div>
+                    <div class="service-name">标准洗护套餐</div>
+                    <div class="service-price">¥98.00</div>
+                    <div class="service-duration">⏱ 约60分钟</div>
+                    <div class="service-desc">洗澡+吹干+基础护理</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 中大型犬</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    <div class="mb-5">
+        <h4 class="fw-bold mb-4"><span style="font-size:1.5rem;">✨</span> 深度护理</h4>
+        <div class="row">
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <div class="service-name">深度洗护套餐</div>
+                    <div class="service-price">¥168.00</div>
+                    <div class="service-duration">⏱ 约90分钟</div>
+                    <div class="service-desc">深层清洁+护毛+SPA</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 所有犬种</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <div class="service-name">驱虫洗护套餐</div>
+                    <div class="service-price">¥128.00</div>
+                    <div class="service-duration">⏱ 约75分钟</div>
+                    <div class="service-desc">洗护+体外驱虫护理</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 所有宠物</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    <div class="mb-5">
+        <h4 class="fw-bold mb-4"><span style="font-size:1.5rem;">💅</span> 增值服务</h4>
+        <div class="row">
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">💅</div>
+                    <div class="service-name">毛发修剪</div>
+                    <div class="service-price">¥88.00</div>
+                    <div class="service-duration">⏱ 约45分钟</div>
+                    <div class="service-desc">造型修剪+打薄</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 长毛犬/猫</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+            
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon">💅</div>
+                    <div class="service-name">指甲修剪+耳道清洁</div>
+                    <div class="service-price">¥48.00</div>
+                    <div class="service-duration">⏱ 约30分钟</div>
+                    <div class="service-desc">指甲修剪+耳道清理+肉垫护理</div>
+                    
+                    <div class="mt-2"><span class="badge bg-light text-dark">🐱 所有宠物</span></div>
+                    
+                    <a href="/appointments/book/" class="btn btn-cute btn-cute-primary btn-cute-sm mt-3">
+                        <i class="bi bi-calendar-plus"></i> 立即预约
+                    </a>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+</div>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer-cute">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">🐾 萌宠洗护预约管理系统 | 用心呵护每一只毛孩子</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="#" class="me-3"><i class="bi bi-wechat"></i> 联系我们</a>
+                    <a href="#"><i class="bi bi-telephone"></i> 意见反馈</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/main.js"></script>
+    
+</body>
+</html>
